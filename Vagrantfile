@@ -12,6 +12,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	# Create a private network, which allows host-only access to the machine
 	# using a specific IP.
 	config.vm.network 'private_network', ip: '192.168.3.2'
+	config.vm.network "forwarded_port", guest: 80, host: 8888
 	
 	# Enable provisioning with Puppet stand alone.  Puppet manifests
 	# are contained in a directory path relative to this Vagrantfile.
@@ -31,12 +32,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Provider-specific configuration so you can fine-tune various
 	# backing providers for Vagrant. These expose provider-specific options.
 	config.vm.provider "virtualbox" do |v|
-        v.memory = 384
+        v.memory = 512
     end
 	
 	#hostmanager
 	config.hostmanager.enabled = true
 	config.hostmanager.manage_host = true
 	config.hostmanager.include_offline = true
-	config.vm.hostname = 'alpha.local'
+	#config.vm.hostname = 'alpha.local'
 end
