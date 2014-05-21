@@ -3,11 +3,11 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # Every Vagrant virtual environment requires a box to build off of.
-	config.vm.box = 'debian64'
+	config.vm.box = 'ubuntu64'
     
 	# The url from where the 'config.vm.box' box will be fetched if it
 	# doesn't already exist on the user's system.
-	# config.vm.box_url = "http://domain.com/path/to/above.box"
+	config.vm.box_url = "https://vagrantcloud.com/icu0755/vagrant-ubuntu-trusty64/version/1/provider/virtualbox.box"
 	
 	# Create a private network, which allows host-only access to the machine
 	# using a specific IP.
