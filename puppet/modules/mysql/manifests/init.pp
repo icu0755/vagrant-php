@@ -33,17 +33,5 @@ class mysql {
 	require => Exec['set-mysql-password'];
   }
   
-  file { '/usr/local/mysql/remote-access.sql':
-	source  => 'puppet:///modules/mysql/remote-access.sql',
-	owner	=> root,
-	group	=> root,
-	mode	=> 0600,
-	require => File['/usr/local/mysql'],
-  }
-
-  exec { 'mysql-remote-access':
-    require => File['/usr/local/mysql/remote-access.sql'],
-	command => "mysql -uroot -proot < /usr/local/mysql/remote-access.sql",
-    path    => ['/bin', '/usr/bin'],
-  }
+  mysql::import{'remote-access.sql':}
 }

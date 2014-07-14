@@ -10,4 +10,12 @@ class php {
         ensure  => "latest",
         require => [Class['apt'], Class['apache']];
 	}
+	
+	file { "/etc/php5/mods-available/xdebug.ini":
+		source  => "puppet:///modules/php/xdebug.ini",
+		owner	=> root,
+		group	=> root,
+		mode	=> 0644,
+		require => Package['php5-xdebug'];
+	}
 }
