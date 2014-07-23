@@ -4,9 +4,13 @@ include mc
 include mysql
 include apache
 include php
-include apache_vhost
 
-#apache_vhost::vhost { 'boo.local':
-#	domain => 'boo.local',
-#	directory => 'boo';
-#}
+apache::mod { 'rewrite': }
+
+apache::vhost { 'fm.local': 
+    docroot => '/var/www/fm/public'
+}
+
+host { 'fm.local': 
+    ip => '127.0.0.1'
+}
