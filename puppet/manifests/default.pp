@@ -1,16 +1,28 @@
-include apt 
-include git
-include mc
-include mysql
-include apache
-include php
+class { 'apache': }
 
-apache::mod { 'rewrite': }
+class { 'apt': }
 
-apache::vhost { 'fm.local': 
-    docroot => '/var/www/fm/public'
+class { 'curl': }
+
+class { 'git': }
+
+class { 'mc': }
+
+class { 'mysql': 
+    template => "mysql/mysql.conf.erb",
+    root_password => 'root',
 }
 
-host { 'fm.local': 
-    ip => '127.0.0.1'
+class { 'php': }
+
+apache::module { 'rewrite': }
+
+mysql::grant { 'allow remote root':
+  mysql_privileges => 'ALL',
+  mysql_password => 'root',
+  mysql_db => '*',
+  mysql_user => 'root',
+  mysql_host => '%',
 }
+
+php::module { ['gd', 'mcrypt', 'mysql', 'xdebug']: }
