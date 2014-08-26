@@ -26,3 +26,5 @@ mysql::grant { 'allow remote root':
 }
 
 php::module { ['gd', 'mcrypt', 'mysql', 'xdebug']: }
+
+class {'composer': }
