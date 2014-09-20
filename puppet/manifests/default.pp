@@ -4,7 +4,7 @@ stage { 'first':
 
 class {'apt':
   stage => first,
-  always_apt_update => true,
+#  always_apt_update => true,
 }
 
 class { 'apache': }
@@ -69,5 +69,8 @@ file {'/etc/php5/cli/conf.d/20-mcrypt.ini':
 
 
 class {'composer': }
+
+class {'php::pear':}
+class {'php::phpunit':}
 
 #import 'vhost.pp'
