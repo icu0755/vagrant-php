@@ -27,4 +27,17 @@ mysql::grant { 'allow remote root':
 
 php::module { ['gd', 'mcrypt', 'mysql', 'xdebug']: }
 
+# Fixing ubuntu bug
+file {'/etc/php5/apache2/conf.d/20-mcrypt.ini':
+    notify => Service[apache],
+    ensure => link,
+    target => '../../mods-available/mcrypt.ini',
+}
+
+file {'/etc/php5/cli/conf.d/20-mcrypt.ini':
+    ensure => link,
+    target => '../../mods-available/mcrypt.ini',
+}
+
+
 class {'composer': }
