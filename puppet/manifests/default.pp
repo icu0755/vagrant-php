@@ -41,6 +41,16 @@ class {
       'php::extension::curl', 'php::extension::gd', 'php::extension::mcrypt', 'php::extension::mysql', 'php::extension::opcache'
     ]:
       ensure => installed;
+
+    # xdebug
+    'php::extension::xdebug':
+      ensure => installed,
+      settings => [
+        "set .anon/zend_extension 'xdebug.so'",
+        "set .anon/xdebug.remote_enable '0'",
+        "set .anon/xdebug.remote_connect_back '1'",
+      ]
+
   }
 
 # Fixing ubuntu bug
