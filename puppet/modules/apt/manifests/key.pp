@@ -1,60 +1,120 @@
-# = Define: apt::key
+# == Define: apt::key
 #
-# Add an APT key to keyring.
+# The apt::key defined type allows for keys to be added to apt's keyring
+# which is used for package validation. This defined type uses the apt_key
+# native type to manage keys. This is a simple wrapper around apt_key with
+# a few safeguards in place.
 #
+# === Parameters
 #
-# == Parameters
+# [*key*]
+#   _default_: +$title+, the title/name of the resource
 #
-# [*name*]
-#   Implicit parameter.
-#   Name of the key to add
+#   Is a GPG key ID. This key ID is validated with a regex enforcing it
+#   to only contain valid hexadecimal characters, be precisely 8 or 16
+#   characters long and optionally prefixed with 0x.
 #
-# [*url*]
-#   Url from which fetch the key
+# [*ensure*]
+#   _default_: +present+
 #
-# [*environment*]
-#   Environment to pass to the executed commands
+#   The state we want this key in, may be either one of:
+#   * +present+
+#   * +absent+
 #
-# [*path*]
-#   Path to pass to the executed commands
+# [*key_content*]
+#   _default_: +undef+
 #
-# [*keyserver*]
-#   Key server from which retrieve the key
+#   This parameter can be used to pass in a GPG key as a
+#   string in case it cannot be fetched from a remote location
+#   and using a file resource is for other reasons inconvenient.
 #
-# [*fingerprint*]
-#   Fingerprint of the key to retrieve
+# [*key_source*]
+#   _default_: +undef+
 #
+#   This parameter can be used to pass in the location of a GPG
+#   key. This URI can take the form of a:
+#   * +URL+: ftp, http or https
+#   * +path+: absolute path to a file on the target system.
 #
-# == Examples
+# [*key_server*]
+#   _default_: +undef+
 #
-# Usage:
-#  apt::key { "key id":
-#    url => 'key url',
-#  }
+#   The keyserver from where to fetch our GPG key. It can either be a domain
+#   name or url. It defaults to
+#   undef which results in apt_key's default keyserver being used,
+#   currently +keyserver.ubuntu.com+.
 #
+# [*key_options*]
+#   _default_: +undef+
 #
+#   Additional options to pass on to `apt-key adv --keyserver-options`.
 define apt::key (
-  $url             = '',
-  $environment     = undef,
-  $path            = '/usr/sbin:/usr/bin:/sbin:/bin',
-  $keyserver       = 'subkeys.pgp.net',
-  $fingerprint     = ''
+  $key         = $title,
+  $ensure      = present,
+  $key_content = undef,
+  $key_source  = undef,
+  $key_server  = undef,
+  $key_options = undef,
 ) {
 
-  if $url != '' {
-    exec { "aptkey_add_${name}":
-      command     => "wget -O - ${url} | apt-key add -",
-      unless      => "apt-key list | grep -q ${name}",
-      environment => $environment,
-      path        => $path,
-    }
-  } else {
-    exec { "aptkey_adv_${name}":
-      command     => "apt-key adv --keyserver ${keyserver} --recv ${fingerprint}",
-      unless      => "apt-key list | grep -q ${name}",
-      environment => $environment,
-      path        => $path,
-    }
+  validate_re($key, ['\A(0x)?[0-9a-fA-F]{8}\Z', '\A(0x)?[0-9a-fA-F]{16}\Z'])
+  validate_re($ensure, ['\Aabsent|present\Z',])
+
+  if $key_content {
+    validate_string($key_content)
   }
 
+  if $key_source {
+    validate_re($key_source, ['\Ahttps?:\/\/', '\Aftp:\/\/', '\A\/\w+'])
+  }
+
+  if $key_server {
+    validate_re($key_server,['\A((hkp|http|https):\/\/)?([a-z\d])([a-z\d-]{0,61}\.)+[a-z\d]+(:\d{2,4})?$'])
+  }
+
+  if $key_options {
+    validate_string($key_options)
+  }
+
+  case $ensure {
+    present: {
+      if defined(Anchor["apt_key ${key} absent"]){
+        fail("key with id ${key} already ensured as absent")
+      }
+
+      if !defined(Anchor["apt_key ${key} present"]) {
+        apt_key { $title:
+          ensure            => $ensure,
+          id                => $key,
+          source            => $key_source,
+          content           => $key_content,
+          server            => $key_server,
+          keyserver_options => $key_options,
+        } ->
+        anchor { "apt_key ${key} present": }
+      }
+    }
+
+    absent: {
+      if defined(Anchor["apt_key ${key} present"]){
+        fail("key with id ${key} already ensured as present")
+      }
+
+      if !defined(Anchor["apt_key ${key} absent"]){
+        apt_key { $title:
+          ensure            => $ensure,
+          id                => $key,
+          source            => $key_source,
+          content           => $key_content,
+          server            => $key_server,
+          keyserver_options => $key_options,
+        } ->
+        anchor { "apt_key ${key} absent": }
+      }
+    }
+
+    default: {
+      fail "Invalid 'ensure' value '${ensure}' for apt::key"
+    }
+  }
 }

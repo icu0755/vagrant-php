@@ -1,19 +1,43 @@
 {
-  "name": "example42-apt",
-  "version": "2.0.7",
-  "author": "Alessandro Franceschi",
-  "summary": "Puppet module for apt",
-  "license": "Apache2",
-  "source": "https://github.com/example42/puppet-apt",
-  "project_page": "http://www.example42.com",
-  "issues_url": "https://github.com/example42/puppet-apt/issues",
-  "description": "This module manages apt",
-  "types": [
-  
+  "name": "puppetlabs-apt",
+  "version": "1.6.0",
+  "author": "Puppet Labs",
+  "summary": "Puppet Labs Apt Module",
+  "license": "Apache-2.0",
+  "source": "https://github.com/puppetlabs/puppetlabs-apt",
+  "project_page": "https://github.com/puppetlabs/puppetlabs-apt",
+  "issues_url": "https://github.com/puppetlabs/puppetlabs-apt/issues",
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "10.04",
+        "12.04",
+        "14.04"
+      ]
+    }
   ],
-  "checksums": {
-  },
+  "requirements": [
+    {
+      "name": "pe",
+      "version_requirement": ">= 3.2.0 < 3.4.0"
+    },
+    {
+      "name": "puppet",
+      "version_requirement": "3.x"
+    }
+  ],
   "dependencies": [
-    {"name":"example42/puppi","version_requirement":">= 2.0.0"}
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 2.2.1"
+    }
   ]
 }

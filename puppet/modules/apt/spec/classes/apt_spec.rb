@@ -1,105 +1,257 @@
-require "#{File.join(File.dirname(__FILE__),'..','spec_helper.rb')}"
+require 'spec_helper'
+describe 'apt', :type => :class do
+  let(:facts) { { :lsbdistid => 'Debian', :osfamily => 'Debian' } }
 
-describe 'apt' do
+  context 'defaults' do
+    it { should contain_file('sources.list').that_notifies('Exec[apt_update]').only_with({
+      'ensure' => 'present',
+      'path'   => '/etc/apt/sources.list',
+      'owner'  => 'root',
+      'group'  => 'root',
+      'mode'   => '0644',
+      'notify' => 'Exec[apt_update]',
+    })}
 
-  let(:title) { 'apt' }
-  let(:node) { 'rspec.example42.com' }
-  let(:facts) { { :ipaddress => '10.42.42.42' } }
+    it { should contain_file('sources.list.d').that_notifies('Exec[apt_update]').only_with({
+      'ensure'  => 'directory',
+      'path'    => '/etc/apt/sources.list.d',
+      'owner'   => 'root',
+      'group'   => 'root',
+      'purge'   => false,
+      'recurse' => false,
+      'notify'  => 'Exec[apt_update]',
+    })}
 
-  describe 'Test standard installation' do
-    it { should contain_package('apt').with_ensure('present') }
-    it { should contain_package('debconf-utils').with_ensure('present') }
-    it { should_not contain_service('apt') }
-    it { should_not contain_file('apt.conf') }
+    it { should contain_file('preferences.d').only_with({
+      'ensure'  => 'directory',
+      'path'    => '/etc/apt/preferences.d',
+      'owner'   => 'root',
+      'group'   => 'root',
+      'purge'   => false,
+      'recurse' => false,
+    })}
+
+    it { should contain_file('01proxy').that_notifies('Exec[apt_update]').only_with({
+      'ensure' => 'absent',
+      'path'   => '/etc/apt/apt.conf.d/01proxy',
+      'notify' => 'Exec[apt_update]',
+    })}
+
+    it { should contain_file('old-proxy-file').that_notifies('Exec[apt_update]').only_with({
+      'ensure' => 'absent',
+      'path'   => '/etc/apt/apt.conf.d/proxy',
+      'notify' => 'Exec[apt_update]',
+    })}
+
+    it { should contain_exec('apt_update').with({
+      'refreshonly' => 'true',
+    })}
   end
 
-  describe 'Test installation of a specific version' do
-    let(:params) { {:version => '1.0.42' } }
-    it { should contain_package('apt').with_ensure('1.0.42') }
-  end
-
-  describe 'Test standard installation with monitoring and firewalling' do
-    it { should contain_package('apt').with_ensure('present') }
-    it { should contain_package('debconf-utils').with_ensure('present') }
-    it { should_not contain_service('apt') }
-    it { should_not contain_file('apt.conf') }
-    it { should_not contain_monitor__process }
-    it { should_not contain_firewall }
-  end
-
-  describe 'Test installation of extra packages, as string' do
-    let(:params) { {:extra_packages => 'aptitude,apt-utils' } }
-    it { should contain_package('aptitude').with_ensure('present') }
-    it { should contain_package('apt-utils').with_ensure('present') }
-  end
-
-  describe 'Test installation of extra packages, as array' do
-    let(:params) { {:extra_packages => [ 'aptitude','apt-utils' ] } }
-    it { should contain_package('aptitude').with_ensure('present') }
-    it { should contain_package('apt-utils').with_ensure('present') }
-  end
-
-  describe 'Test decommissioning - absent' do
-    let(:params) { {:absent => true} }
-
-    it 'should remove Package[apt]' do should contain_package('apt').with_ensure('absent') end 
-    it { should_not contain_service('apt') }
-    it 'should remove apt configuration file' do should contain_file('apt.conf').with_ensure('absent') end
-    it 'should remove sources.list file' do should contain_file('apt_sources.list').with_ensure('absent') end
-    it { should_not contain_monitor__process }
-    it { should_not contain_firewall }
-  end
-
-  describe 'Test customizations - template' do
-    let(:params) { {:template => "apt/spec.erb" , :options => { 'opt_a' => 'value_a' } } }
-
-    it 'should generate a valid template' do
-      should contain_file('apt.conf').with_content(/fqdn: rspec.example42.com/)
+  context 'lots of non-defaults' do
+    let :params do
+      {
+        :always_apt_update    => true,
+        :disable_keys         => true,
+        :proxy_host           => 'foo',
+        :proxy_port           => '9876',
+        :purge_sources_list   => true,
+        :purge_sources_list_d => true,
+        :purge_preferences    => true,
+        :purge_preferences_d  => true,
+        :update_timeout       => '1',
+        :update_tries         => '3',
+        :fancy_progress       => true,
+      }
     end
-    it 'should not request a source ' do
-      should contain_file('apt.conf').without_source
-    end
-    it 'should generate a template that uses custom options' do
-      should contain_file('apt.conf').with_content(/value_a/)
-    end
+
+    it { should contain_file('sources.list').with({
+      'content' => "# Repos managed by puppet.\n"
+    })}
+
+    it { should contain_file('sources.list.d').with({
+      'purge'   => 'true',
+      'recurse' => 'true',
+    })}
+
+    it { should contain_file('apt-preferences').only_with({
+      'ensure' => 'absent',
+      'path'   => '/etc/apt/preferences',
+    })}
+
+    it { should contain_file('preferences.d').with({
+      'purge'   => 'true',
+      'recurse' => 'true',
+    })}
+
+    it { should contain_file('99progressbar').only_with({
+      'ensure'  => 'present',
+      'content' => 'Dpkg::Progress-Fancy "1";',
+      'path'    => '/etc/apt/apt.conf.d/99progressbar',
+    })}
+
+    it { should contain_file('99unauth').only_with({
+      'ensure'  => 'present',
+      'content' => "APT::Get::AllowUnauthenticated 1;\n",
+      'path'    => '/etc/apt/apt.conf.d/99unauth',
+    })}
+
+    it { should contain_file('01proxy').that_notifies('Exec[apt_update]').only_with({
+      'ensure'  => 'present',
+      'path'    => '/etc/apt/apt.conf.d/01proxy',
+      'content' => "Acquire::http::Proxy \"http://foo:9876\";\n",
+      'notify'  => 'Exec[apt_update]',
+      'mode'    => '0644',
+      'owner'   => 'root',
+      'group'   => 'root'
+    })}
+
+    it { should contain_exec('apt_update').with({
+      'refreshonly' => 'false',
+      'timeout'     => '1',
+      'tries'       => '3',
+    })}
 
   end
 
-  describe 'Test customizations - source' do
-    let(:params) { {:source => "puppet://modules/apt/spec" , :source_dir => "puppet://modules/apt/dir/spec" , :source_dir_purge => true } }
+  context 'more non-default' do
+    let :params do
+      {
+        :fancy_progress => false,
+        :disable_keys   => false,
+      }
+    end
 
-    it 'should request a valid source ' do
-      should contain_file('apt.conf').with_source('puppet://modules/apt/spec')
-    end
-    it 'should not have content' do
-      should contain_file('apt.conf').without_content
-    end
-    it 'should request a valid source dir' do
-      should contain_file('apt.dir').with_source('puppet://modules/apt/dir/spec')
-    end
-    it 'should purge source dir if source_dir_purge is true' do
-      should contain_file('apt.dir').with_purge(true)
-    end
+    it { should contain_file('99progressbar').only_with({
+      'ensure'  => 'absent',
+      'path'    => '/etc/apt/apt.conf.d/99progressbar',
+    })}
+
+    it { should contain_file('99unauth').only_with({
+      'ensure'  => 'absent',
+      'path'    => '/etc/apt/apt.conf.d/99unauth',
+    })}
+
   end
 
-  describe 'Test customizations - custom class' do
-    let(:params) { {:my_class => "apt::spec", :template => "apt/spec.erb" } }
-    it 'should automatically include a custom class' do
-      should contain_file('apt.conf').with_content(/fqdn: rspec.example42.com/)
+  context 'with sources defined on valid osfamily' do
+    let :facts do
+      { :osfamily        => 'Debian',
+        :lsbdistcodename => 'precise',
+        :lsbdistid       => 'Debian',
+      }
+    end
+    let(:params) { { :sources => {
+      'debian_unstable' => {
+        'location'          => 'http://debian.mirror.iweb.ca/debian/',
+        'release'           => 'unstable',
+        'repos'             => 'main contrib non-free',
+        'required_packages' => 'debian-keyring debian-archive-keyring',
+        'key'               => '55BE302B',
+        'key_server'        => 'subkeys.pgp.net',
+        'pin'               => '-10',
+        'include_src'       => true
+      },
+      'puppetlabs' => {
+        'location'   => 'http://apt.puppetlabs.com',
+        'repos'      => 'main',
+        'key'        => '4BD6EC30',
+        'key_server' => 'pgp.mit.edu',
+      }
+    } } }
+
+    it {
+      should contain_file('debian_unstable.list').with({
+        'ensure'  => 'present',
+        'path'    => '/etc/apt/sources.list.d/debian_unstable.list',
+        'owner'   => 'root',
+        'group'   => 'root',
+        'mode'    => '0644',
+        'notify'  => 'Exec[apt_update]',
+      })
+    }
+
+    it { should contain_file('debian_unstable.list').with_content(/^deb http:\/\/debian.mirror.iweb.ca\/debian\/ unstable main contrib non-free$/) }
+    it { should contain_file('debian_unstable.list').with_content(/^deb-src http:\/\/debian.mirror.iweb.ca\/debian\/ unstable main contrib non-free$/) }
+
+    it {
+      should contain_file('puppetlabs.list').with({
+        'ensure'  => 'present',
+        'path'    => '/etc/apt/sources.list.d/puppetlabs.list',
+        'owner'   => 'root',
+        'group'   => 'root',
+        'mode'    => '0644',
+        'notify'  => 'Exec[apt_update]',
+      })
+    }
+
+    it { should contain_file('puppetlabs.list').with_content(/^deb http:\/\/apt.puppetlabs.com precise main$/) }
+    it { should contain_file('puppetlabs.list').with_content(/^deb-src http:\/\/apt.puppetlabs.com precise main$/) }
+  end
+
+  describe 'failing tests' do
+    context 'bad purge_sources_list' do
+      let :params do
+        {
+          'purge_sources_list' => 'foo'
+        }
+      end
+      it do
+        expect {
+          should compile
+        }.to raise_error(Puppet::Error)
+      end
+    end
+
+    context 'bad purge_sources_list_d' do
+      let :params do
+        {
+          'purge_sources_list_d' => 'foo'
+        }
+      end
+      it do
+        expect {
+          should compile
+        }.to raise_error(Puppet::Error)
+      end
+    end
+
+    context 'bad purge_preferences' do
+      let :params do
+        {
+          'purge_preferences' => 'foo'
+        }
+      end
+      it do
+        expect {
+          should compile
+        }.to raise_error(Puppet::Error)
+      end
+    end
+
+    context 'bad purge_preferences_d' do
+      let :params do
+        {
+          'purge_preferences_d' => 'foo'
+        }
+      end
+      it do
+        expect {
+          should compile
+        }.to raise_error(Puppet::Error)
+      end
+    end
+
+    context 'with unsupported osfamily' do
+      let :facts do
+        { :osfamily => 'Darwin', }
+      end
+
+      it do
+        expect {
+          should compile
+        }.to raise_error(Puppet::Error, /This module only works on Debian or derivatives like Ubuntu/)
+      end
     end
   end
-
-  describe 'Test installation without apt.conf file' do
-    let(:params) { {:force_conf_d => true } }
-    it { should contain_package('apt').with_ensure('present') }
-    it { should contain_file('apt.conf').with_ensure('absent') }
-  end
-
-  describe 'Test installation without sources.list file' do
-    let(:params) { {:force_sources_list_d => true } }
-    it { should contain_package('apt').with_ensure('present') }
-    it { should contain_file('apt_sources.list').with_ensure('absent') }
-  end
-
 end
-
