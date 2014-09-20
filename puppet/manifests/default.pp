@@ -69,3 +69,5 @@ file {'/etc/php5/cli/conf.d/20-mcrypt.ini':
 
 
 class {'composer': }
+
+#import 'vhost.pp'
