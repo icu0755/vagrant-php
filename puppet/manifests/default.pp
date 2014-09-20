@@ -4,7 +4,7 @@ stage { 'first':
 
 class {'apt':
   stage => first,
-#  always_apt_update => true,
+  always_apt_update => true,
 }
 
 class { 'apache': }
