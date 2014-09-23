@@ -13,7 +13,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	   puppet.module_path = 'puppet/modules'
 	end
     
-	config.vm.synced_folder 'C:\www', '/var/www'
+	config.vm.synced_folder 'C:\www', '/var/www', create: true
 
 	config.vm.provider "virtualbox" do |v|
         v.memory = 512
