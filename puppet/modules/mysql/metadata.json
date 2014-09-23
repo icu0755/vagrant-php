@@ -1,49 +1,82 @@
 {
-  "name": "example42-mysql",
-  "version": "2.1.3",
-  "summary": "Puppet module for mysql",
-  "author": "Alessandro Franceschi",
-  "description": "This module installs and manages mysql. Check README.rdoc for details. Puppi is required for some common functions: you can install them without using the whole module. Monitor and firewall dependencies are needed only if the relevant features are enabled",
+  "name": "puppetlabs-mysql",
+  "version": "2.3.1",
+  "author": "Puppet Labs",
+  "summary": "Mysql module",
+  "license": "Apache 2.0",
+  "source": "git://github.com/puppetlabs/puppetlabs-mysql.git",
+  "project_page": "http://github.com/puppetlabs/puppetlabs-mysql",
+  "issues_url": "https://github.com/puppetlabs/puppetlabs-mysql/issues",
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "5",
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "5",
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "OracleLinux",
+      "operatingsystemrelease": [
+        "5",
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Scientific",
+      "operatingsystemrelease": [
+        "5",
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "SLES",
+      "operatingsystemrelease": [
+        "11 SP1"
+      ]
+    },
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "10.04",
+        "12.04",
+        "14.04"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "pe",
+      "version_requirement": ">= 3.2.0 < 3.4.0"
+    },
+    {
+      "name": "puppet",
+      "version_requirement": "3.x"
+    }
+  ],
+  "description": "Mysql module",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">=2.0.0"
-    },
-    {
-      "name": "example42/puppi",
-      "version_requirement": ">=2.0.0"
+      "version_requirement": ">= 3.2.0"
     }
-  ],
-  "types": [
-
-  ],
-  "checksums": {
-    "LICENSE": "a300b604c66de62cf6e923cca89c9d83",
-    "Modulefile": "52c62e2849de9887d701fcc5539399fa",
-    "README.md": "0950e0a8a39a5962150f92ce6fcb6654",
-    "Rakefile": "beb946c8ed36b603d578cc9ca17ca85d",
-    "manifests/augeas.pp": "df1d3a71c81550a282a149393f5cc36a",
-    "manifests/client.pp": "28382845244efa10d09108ce737100c3",
-    "manifests/grant.pp": "9f9753498a17af1999628f53d0b73b24",
-    "manifests/init.pp": "471eb4a3a63801bacb27ec221d7f9d7a",
-    "manifests/params.pp": "04c137bc61c74ac9865494f06630bf5b",
-    "manifests/password.pp": "56ef5b205a6f4531eb37f700b98882a5",
-    "manifests/query.pp": "b727e28d414c9aec9cfd232569c40d9d",
-    "manifests/queryfile.pp": "0db43dda2804d621b5fd57e4e5c5a82e",
-    "manifests/spec.pp": "7ceeebf0b8ad912eab2ab922b87cb9b7",
-    "manifests/user.pp": "2d9f6a47045ce9d88128905ded3419fb",
-    "spec/classes/mysql_spec.rb": "7644d6f016e91ec19dd6c6978a7b92e1",
-    "spec/defines/grant_spec.rb": "c703a6abd55a3c3641ead8fd3a8cbadb",
-    "spec/spec.opts": "87c92e0bb6615f5f0b245ffe95dcca38",
-    "spec/spec_helper.rb": "0db89c9a486df193c0e40095422e19dc",
-    "templates/grant.erb": "b1a37e1530b253d65e4a8f0b1cf02ad3",
-    "templates/query.erb": "bf2381579c2c39f6c23bc97704169631",
-    "templates/root.my.cnf.backup.erb": "75c49c6f6922c9d71db19f7c7f68e680",
-    "templates/root.my.cnf.erb": "8f02e9344200c6346c21a08f6c36d857",
-    "templates/spec.erb": "055d4f22a02a677753cf922108b6e50c",
-    "templates/user.erb": "861e5463b945ba7e4257841214cdab22"
-  },
-  "source": "https://github.com/example42/puppet-mysql",
-  "project_page": "http://www.example42.com",
-  "license": "Apache2"
+  ]
 }

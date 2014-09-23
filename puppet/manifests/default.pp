@@ -73,4 +73,5 @@ class {'composer': }
 class {'php::pear':}
 class {'php::phpunit':}
 
-#import 'vhost.pp'
+import 'vhost.pp'
+import 'mysql.pp'
