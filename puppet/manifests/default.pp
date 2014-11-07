@@ -16,4 +16,6 @@ import 'vhost.pp'
 
 import 'mysql.pp'
 
-import 'php-apache.pp'
+#import 'php-apache.pp'
+
+import 'php-fpm.pp'
