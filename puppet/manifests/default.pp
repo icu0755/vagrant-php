@@ -1,11 +1,4 @@
-stage { 'first':
-  before => Stage['main'],
-} 
-
-class {'apt':
-  stage => first,
-  always_apt_update => true,
-}
+import 'apt.pp'
 
 class { 'apache': }
 
