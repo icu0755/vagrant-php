@@ -19,3 +19,5 @@ class {'composer': }
 #import 'php-apache.pp'
 
 #import 'php-fpm.pp'
+
+#import 'nullmailer.pp'
