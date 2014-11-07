@@ -2,19 +2,15 @@ import 'apt.pp'
 
 class { 'apache': }
 
+apache::module { 'rewrite': }
+
 class { 'curl': }
 
 class { 'git': }
 
 class { 'mc': }
 
-apache::module { 'rewrite': }
-
 class {'composer': }
-
-class {'php::pear':}
-
-class {'php::phpunit':}
 
 import 'vhost.pp'
 
