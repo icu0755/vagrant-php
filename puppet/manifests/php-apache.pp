@@ -1,9 +1,9 @@
 include php
-class {
-    # Base packages
-    [ 'php::apache' ]:
-      ensure => installed;
 
+class { ['php::cli', 'php::apache']:
+}
+
+class {
     # PHP extensions
     [
       'php::extension::curl', 'php::extension::gd', 'php::extension::mcrypt', 'php::extension::mysql', 'php::extension::opcache'
@@ -35,5 +35,5 @@ file {'/etc/php5/cli/conf.d/20-mcrypt.ini':
     require => Package['php5-mcrypt'],
 }
 
-Package['php5-cli'] -> File['/etc/php5/cli/conf.d/20-mcrypt.ini']
-Package['php5-apache'] -> File['/etc/php5/apache2/conf.d/20-mcrypt.ini']
+Package[$php::cli::params::package] -> File['/etc/php5/cli/conf.d/20-mcrypt.ini']
+Package[$php::apache::params::package] -> File['/etc/php5/apache2/conf.d/20-mcrypt.ini']
