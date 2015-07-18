@@ -14,9 +14,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 #	   puppet.options = "--verbose --debug"
 	end
     
-	config.vm.synced_folder 'C:\www', '/var/www', create: true
+	# vagrant plugin install vagrant-winnfsd
+	config.vm.synced_folder 'C:\www', '/var/www', create: true, nfs: true
 
 	config.vm.provider "virtualbox" do |v|
-        v.memory = 512
+        v.memory = 2048
+        v.cpus = 2
+        v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
     end
 end
